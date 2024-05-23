@@ -95,6 +95,9 @@ class BaseTrainer:
             cfg (str, optional): Path to a configuration file. Defaults to DEFAULT_CFG.
             overrides (dict, optional): Configuration overrides. Defaults to None.
         """
+        # 手动指定输出路径
+        self.save_dir = overrides.get('save_dir', None)
+
         self.args = get_cfg(cfg, overrides)
         self.check_resume(overrides)
         self.device = select_device(self.args.device, self.args.batch)
@@ -105,6 +108,11 @@ class BaseTrainer:
 
         # Dirs
         self.save_dir = get_save_dir(self.args)
+        if self.save_dir is None:
+            self.save_dir = get_save_dir(self.args)
+        else:
+            self.save_dir = Path(self.save_dir)
+        
         self.args.name = self.save_dir.name  # update name for loggers
         self.wdir = self.save_dir / "weights"  # weights dir
         if RANK in (-1, 0):
